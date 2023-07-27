@@ -19,6 +19,7 @@ func setupGin() http.Handler {
 	gin.SetMode(gin.DebugMode)
 
 	r := gin.New()
+	r.Use(api.ErrorHandler())
 	apiGroup := r.Group("/api")
 
 	// TODO: api router

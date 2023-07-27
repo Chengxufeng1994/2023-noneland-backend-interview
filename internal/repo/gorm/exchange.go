@@ -85,12 +85,20 @@ func (repo *repository) GetFuturesBalance() (balance entity.Balance, err error) 
 	return
 }
 
-func (repo *repository) GetTxRecords() (txRecords entity.TxRecords, err error) {
+func (repo *repository) GetTxRecords(args entity.GetTxRecordsArg) (txRecords entity.TxRecords, err error) {
 	var reader io.Reader
 	var response *http.Response
-	baseUrl := domain + "/spot/transfer/records"
+	baseUrl := domain + "/spot/transfer/records?"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
-		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
+		baseUrl += fmt.Sprintf("current=%d", args.Current)
+		baseUrl += fmt.Sprintf("&size=%d", args.Size)
+		if args.StartTime != 0 {
+			baseUrl += fmt.Sprintf("&startTime=%d", args.StartTime)
+		}
+		if args.EndTime != 0 {
+			baseUrl += fmt.Sprintf("&endTime=%d", args.EndTime)
+		}
+		baseUrl += fmt.Sprintf("&api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
 		response, err = http.Get(baseUrl)
 		if err != nil {
 			return

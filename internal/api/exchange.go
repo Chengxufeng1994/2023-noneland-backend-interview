@@ -1,8 +1,10 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -47,25 +49,52 @@ func GetBalance(c *gin.Context) {
 	)
 }
 
-type getTxRecordsRequest struct {
-	StartTime int64 `form:"startTime"`
-	EndTime   int64 `form:"endTime"`
-	Current   int64 `form:"current"`
-	Size      int64 `form:"size" `
-}
-
 type getTxRecordsResponse struct {
 	OK        bool             `json:"ok"`
 	TxRecords entity.TxRecords `json:"data"`
 }
 
 func GetTxRecords(c *gin.Context) {
-	var req getTxRecordsRequest
-	if err := c.ShouldBind(&req); err != nil {
-		log.Printf("request bind failed: %s", err.Error())
-		errResponse(c)
+	startTimeStr := c.DefaultQuery("startTime", "0")
+	endTimeStr := c.DefaultQuery("endTime", "0")
+	currentStr := c.DefaultQuery("current", "1")
+	sizeStr := c.DefaultQuery("size", "10")
+
+	startTime, err := strconv.ParseInt(startTimeStr, 10, 64)
+	if err != nil {
+		log.Printf("parse start time failed: %s", err.Error())
+		c.Error(NewError(http.StatusBadRequest, err.Error()))
 		return
 	}
+	endTime, err := strconv.ParseInt(endTimeStr, 10, 64)
+	if err != nil {
+		log.Printf("parse end time failed: %s", err.Error())
+		c.Error(NewError(http.StatusBadRequest, err.Error()))
+		return
+	}
+	current, err := strconv.ParseInt(currentStr, 10, 64)
+	if err != nil {
+		log.Printf("parse current failed: %s", err.Error())
+		c.Error(NewError(http.StatusBadRequest, err.Error()))
+		return
+	}
+	size, err := strconv.ParseInt(sizeStr, 10, 64)
+	if err != nil {
+		log.Printf("parse size failed: %s", err.Error())
+		c.Error(NewError(http.StatusBadRequest, err.Error()))
+		return
+	}
+	if size < 10 || size > 100 {
+		msg := fmt.Sprintf("size must greater then 10 and less than 100")
+		c.Error(NewError(http.StatusBadRequest, msg))
+		return
+	}
+
+	var args entity.GetTxRecordsArg
+	args.StartTime = startTime
+	args.EndTime = endTime
+	args.Current = current
+	args.Size = size
 
 	repo, err := di.NewRepo()
 	if err != nil {
@@ -73,7 +102,7 @@ func GetTxRecords(c *gin.Context) {
 		errResponse(c)
 		return
 	}
-	records, err := repo.GetTxRecords()
+	records, err := repo.GetTxRecords(args)
 	c.JSON(http.StatusOK, getTxRecordsResponse{
 		OK:        true,
 		TxRecords: records,

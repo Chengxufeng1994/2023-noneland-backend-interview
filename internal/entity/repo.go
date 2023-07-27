@@ -6,5 +6,12 @@ type Repository interface {
 	// Exchange
 	GetSpotBalance() (balance Balance, err error)
 	GetFuturesBalance() (balance Balance, err error)
-	GetTxRecords() (txRecords TxRecords, err error)
+	GetTxRecords(arg GetTxRecordsArg) (txRecords TxRecords, err error)
+}
+
+type GetTxRecordsArg struct {
+	StartTime int64
+	EndTime   int64
+	Current   int64
+	Size      int64
 }
