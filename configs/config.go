@@ -2,13 +2,20 @@ package configs
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"os"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Port string
-	Mode string
+	Port       string
+	Mode       string
+	XXExchange XXExchange
+}
+
+type XXExchange struct {
+	ApiKey    string
+	ApiSecret string
 }
 
 func init() {
@@ -32,5 +39,9 @@ func NewConfig() *Config {
 	return &Config{
 		Port: viper.GetString("port"),
 		Mode: viper.GetString("mode"),
+		XXExchange: XXExchange{
+			ApiKey:    viper.GetString("XX_EXCHANGE_API_KEY"),
+			ApiSecret: viper.GetString("XX_EXCHANGE_API_SECRET"),
+		},
 	}
 }

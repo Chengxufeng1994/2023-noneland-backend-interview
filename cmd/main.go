@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
+
 	"noneland/backend/interview/internal/di"
 	"noneland/backend/interview/internal/pkg"
-
-	"time"
 )
 
 func main() {

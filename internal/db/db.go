@@ -1,10 +1,11 @@
 package db
 
 import (
+	"log"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
 )
 
 func NewDb() *gorm.DB {

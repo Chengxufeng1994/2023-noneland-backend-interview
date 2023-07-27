@@ -1,10 +1,12 @@
 package pkg
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-	"net/http"
+
 	"noneland/backend/interview/internal/api"
 )
 
@@ -21,6 +23,8 @@ func setupGin() http.Handler {
 
 	// TODO: api router
 	apiGroup.GET("hello", api.HelloHandler)
+	apiGroup.GET("exchange/balance/:userId", api.GetBalance)
+	apiGroup.GET("exchange/transfer/records/:userId", api.GetTxRecords)
 
 	return r
 }

@@ -1,0 +1,29 @@
+{
+  "rows": [
+    {
+      "amount": "0.10000000",
+      "asset": "BNB",
+      "status": "CONFIRMED",
+      "timestamp": 1566898617,
+      "txId": 5240372201,
+      "type": "IN"
+    },
+    {
+      "amount": "5.00000000",
+      "asset": "USDT",
+      "status": "CONFIRMED",
+      "timestamp": 1566888436,
+      "txId": 5239810406,
+      "type": "OUT"
+    },
+    {
+      "amount": "1.00000000",
+      "asset": "EOS",
+      "status": "CONFIRMED",
+      "timestamp": 1566888403,
+      "txId": 5239808703,
+      "type": "IN"
+    }
+  ],
+  "total": 3
+}
