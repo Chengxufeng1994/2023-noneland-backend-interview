@@ -11,12 +11,84 @@ import (
 	"noneland/backend/interview/internal/repo/model"
 )
 
-const domain = "https://xx-exchange.com"
+const spotUrl = "https://exchange.com/api"
+const featuresUrl = "https://exhcange.com/api"
+
+func (repo *repository) GetSpotExchangeInfo() (exchangeInfo entity.ExchangeInfo, err error) {
+	var reader io.Reader
+	var response *http.Response
+	baseUrl := spotUrl + "/exchangeInfo"
+	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
+		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
+		response, err = http.Get(baseUrl)
+		if err != nil {
+			return exchangeInfo, err
+		}
+	}
+
+	if response != nil {
+		reader = response.Body
+	} else {
+		reader, err = os.Open("test/spot_exchange_info.json")
+		if err != nil {
+			return exchangeInfo, err
+		}
+	}
+
+	rawData, err := io.ReadAll(reader)
+	if err != nil {
+		return exchangeInfo, err
+	}
+
+	data := &model.ExchangeInfo{}
+	if err := json.Unmarshal(rawData, &data); err != nil {
+		return exchangeInfo, err
+	}
+
+	exchangeInfo = *model.ExchangeInfoModelToEntity(data)
+
+	return
+}
+func (repo *repository) GetFuturesExchangeInfo() (exchangeInfo entity.ExchangeInfo, err error) {
+	var reader io.Reader
+	var response *http.Response
+	baseUrl := spotUrl + "/exchangeInfo"
+	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
+		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
+		response, err = http.Get(baseUrl)
+		if err != nil {
+			return exchangeInfo, err
+		}
+	}
+
+	if response != nil {
+		reader = response.Body
+	} else {
+		reader, err = os.Open("test/spot_exchange_info.json")
+		if err != nil {
+			return exchangeInfo, err
+		}
+	}
+
+	rawData, err := io.ReadAll(reader)
+	if err != nil {
+		return exchangeInfo, err
+	}
+
+	data := &model.ExchangeInfo{}
+	if err := json.Unmarshal(rawData, &data); err != nil {
+		return exchangeInfo, err
+	}
+
+	exchangeInfo = *model.ExchangeInfoModelToEntity(data)
+
+	return
+}
 
 func (repo *repository) GetSpotBalance() (balance entity.Balance, err error) {
 	var reader io.Reader
 	var response *http.Response
-	baseUrl := domain + "/spot/balance"
+	baseUrl := spotUrl + "/spot/balance"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
 		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
 		response, err = http.Get(baseUrl)
@@ -52,7 +124,7 @@ func (repo *repository) GetSpotBalance() (balance entity.Balance, err error) {
 func (repo *repository) GetFuturesBalance() (balance entity.Balance, err error) {
 	var reader io.Reader
 	var response *http.Response
-	baseUrl := domain + "/spot/balance"
+	baseUrl := featuresUrl + "/futures/balance"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
 		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
 		response, err = http.Get(baseUrl)
@@ -88,7 +160,7 @@ func (repo *repository) GetFuturesBalance() (balance entity.Balance, err error) 
 func (repo *repository) GetTxRecords(args entity.GetTxRecordsArg) (txRecords entity.TxRecords, err error) {
 	var reader io.Reader
 	var response *http.Response
-	baseUrl := domain + "/spot/transfer/records?"
+	baseUrl := spotUrl + "/spot/transfer/records?"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
 		baseUrl += fmt.Sprintf("current=%d", args.Current)
 		baseUrl += fmt.Sprintf("&size=%d", args.Size)

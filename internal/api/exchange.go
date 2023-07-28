@@ -2,15 +2,64 @@ package api
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"noneland/backend/interview/internal/limiter"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 
 	"noneland/backend/interview/internal/di"
 	"noneland/backend/interview/internal/entity"
 )
+
+var spotReqWeightRateLimiter limiter.RateLimiter
+var spotRawReqRateLimiter limiter.RateLimiter
+var futuresReqWeightRateLimiter limiter.RateLimiter
+var futuresRawReqRateLimiter limiter.RateLimiter
+
+func calculateRate(interval string, intervalNum int, limit int) float64 {
+	var seconds int
+	if interval == "SECONDS" {
+		seconds = 1
+	} else if interval == "MINUTE" {
+		seconds = 60
+	}
+
+	return float64(limit / seconds / intervalNum)
+}
+
+func init() {
+	repo, err := di.NewRepo()
+	if err != nil {
+		log.Printf("create repository failed: %s", err.Error())
+	}
+	spotExchangeInfo, err := repo.GetSpotExchangeInfo()
+	if err != nil {
+		log.Printf("get spot exchange info failed: %s", err.Error())
+	}
+	futuresExchangeInfo, err := repo.GetFuturesExchangeInfo()
+	if err != nil {
+		log.Printf("get futures exchange info failed: %s", err.Error())
+	}
+	for _, rl := range spotExchangeInfo.RateLimits {
+		rate := calculateRate(rl.Interval, rl.IntervalNum, rl.Limit)
+		switch rl.RateLimitType {
+		case "REQUEST_WEIGHT":
+			spotReqWeightRateLimiter = limiter.New(rl.Limit, rate)
+		case "RAW_REQUESTS":
+			spotRawReqRateLimiter = limiter.New(rl.Limit, rate)
+		}
+	}
+	for _, rl := range futuresExchangeInfo.RateLimits {
+		rate := calculateRate(rl.Interval, rl.IntervalNum, rl.Limit)
+		switch rl.RateLimitType {
+		case "REQUEST_WEIGHT":
+			futuresReqWeightRateLimiter = limiter.New(rl.Limit, rate)
+		case "RAW_REQUESTS":
+			futuresRawReqRateLimiter = limiter.New(rl.Limit, rate)
+		}
+	}
+}
 
 type getBalanceResponse struct {
 	OK              bool   `json:"ok"`
@@ -26,6 +75,26 @@ func GetBalance(c *gin.Context) {
 		return
 	}
 
+	if !spotReqWeightRateLimiter.Allow() {
+		log.Printf("spot request weight exceed")
+		c.Error(NewError(http.StatusTooManyRequests, "spot request weight exceed"))
+		return
+	}
+	if !spotRawReqRateLimiter.Allow() {
+		log.Printf("spot raw request exceed")
+		c.Error(NewError(http.StatusTooManyRequests, "spot raw request exceed"))
+		return
+	}
+	if !futuresReqWeightRateLimiter.Allow() {
+		log.Printf("futures request weight exceed")
+		c.Error(NewError(http.StatusTooManyRequests, "future request weight exceed"))
+		return
+	}
+	if !futuresRawReqRateLimiter.Allow() {
+		log.Printf("futures request weight exceed")
+		c.Error(NewError(http.StatusTooManyRequests, "future raw request exceed"))
+		return
+	}
 	spotBalance, err := repo.GetSpotBalance()
 	if err != nil {
 		log.Printf("get spot balance failed: %s", err.Error())
@@ -95,6 +164,16 @@ func GetTxRecords(c *gin.Context) {
 	args.Current = current
 	args.Size = size
 
+	if !spotReqWeightRateLimiter.Allow() {
+		log.Printf("spot request weight exceed")
+		c.Error(NewError(http.StatusTooManyRequests, "spot request weight exceed"))
+		return
+	}
+	if !spotRawReqRateLimiter.Allow() {
+		log.Printf("spot raw request exceed")
+		c.Error(NewError(http.StatusTooManyRequests, "spot raw request exceed"))
+		return
+	}
 	repo, err := di.NewRepo()
 	if err != nil {
 		log.Printf("create repository failed: %s", err.Error())

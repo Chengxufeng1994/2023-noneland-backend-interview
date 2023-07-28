@@ -31,3 +31,34 @@ type TxRecord struct {
 	TxId      int64  `json:"txId"`
 	Type      string `json:"type"`
 }
+
+type RateLimit struct {
+	RateLimitType string `json:"rateLimitType"`
+	Interval      string `json:"interval"`
+	IntervalNum   int    `json:"intervalNum"`
+	Limit         int    `json:"limit"`
+}
+
+type ExchangeInfo struct {
+	Timezone   string      `json:"timezone"`
+	ServerTime int64       `json:"serverTime"`
+	RateLimits []RateLimit `json:"rateLimits"`
+}
+
+func ExchangeInfoModelToEntity(input *ExchangeInfo) *entity.ExchangeInfo {
+	var rateLimits []entity.RateLimit
+	for _, rl := range input.RateLimits {
+		rateLimits = append(rateLimits, entity.RateLimit{
+			RateLimitType: rl.RateLimitType,
+			Interval:      rl.Interval,
+			IntervalNum:   rl.IntervalNum,
+			Limit:         rl.Limit,
+		})
+	}
+
+	return &entity.ExchangeInfo{
+		Timezone:   input.Timezone,
+		ServerTime: input.ServerTime,
+		RateLimits: rateLimits,
+	}
+}

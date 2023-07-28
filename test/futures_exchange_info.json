@@ -1,0 +1,18 @@
+{
+  "timezone": "UTC",
+  "serverTime": 1565246363776,
+  "rateLimits": [
+    {
+      "rateLimitType": "REQUEST_WEIGHT",
+      "interval": "MINUTE",
+      "intervalNum": 1,
+      "limit": 1200
+    },
+    {
+      "rateLimitType": "RAW_REQUESTS",
+      "interval": "MINUTE",
+      "intervalNum": 5,
+      "limit": 6100
+    }
+  ]
+}
