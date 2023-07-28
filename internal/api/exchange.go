@@ -19,7 +19,6 @@ type getBalanceResponse struct {
 }
 
 func GetBalance(c *gin.Context) {
-	_ = c.Param("userId")
 	repo, err := di.NewRepo()
 	if err != nil {
 		log.Printf("create repository failed: %s", err.Error())

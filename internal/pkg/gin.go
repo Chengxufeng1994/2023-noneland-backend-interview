@@ -72,8 +72,8 @@ func setupGin() http.Handler {
 	apiGroup := r.Group("/api")
 	apiGroup.GET("hello", api.HelloHandler)
 
-	apiGroup.GET("exchange/balance/:userId", LimitHandler(tb), api.GetBalance)
-	apiGroup.GET("exchange/transfer/records/:userId", LimitHandler(tb), api.GetTxRecords)
+	apiGroup.GET("exchange/balance", LimitHandler(tb), api.GetBalance)
+	apiGroup.GET("exchange/transfer/records", LimitHandler(tb), api.GetTxRecords)
 
 	return r
 }
