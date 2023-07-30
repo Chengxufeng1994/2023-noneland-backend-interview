@@ -28,6 +28,8 @@ func init() {
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 	viper.AddConfigPath("./configs")
+	viper.AddConfigPath("../../configs")
+	viper.AddConfigPath("../../../configs")
 
 	err = viper.ReadInConfig()
 	if err != nil {
