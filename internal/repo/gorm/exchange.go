@@ -164,12 +164,8 @@ func (repo *repository) GetTxRecords(args entity.GetTxRecordsArg) (txRecords ent
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
 		baseUrl += fmt.Sprintf("current=%d", args.Current)
 		baseUrl += fmt.Sprintf("&size=%d", args.Size)
-		if args.StartTime != 0 {
-			baseUrl += fmt.Sprintf("&startTime=%d", args.StartTime)
-		}
-		if args.EndTime != 0 {
-			baseUrl += fmt.Sprintf("&endTime=%d", args.EndTime)
-		}
+		baseUrl += fmt.Sprintf("&startTime=%d", args.StartTime)
+		baseUrl += fmt.Sprintf("&endTime=%d", args.EndTime)
 		baseUrl += fmt.Sprintf("&api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
 		response, err = http.Get(baseUrl)
 		if err != nil {

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"noneland/backend/interview/internal/limiter"
 	"strconv"
+	"time"
 
 	"noneland/backend/interview/internal/di"
 	"noneland/backend/interview/internal/entity"
@@ -123,8 +124,11 @@ type getTxRecordsResponse struct {
 }
 
 func GetTxRecords(c *gin.Context) {
-	startTimeStr := c.DefaultQuery("startTime", "0")
-	endTimeStr := c.DefaultQuery("endTime", "0")
+	now := time.Now()
+	endTs := time.Now().Unix()
+	startTs := now.AddDate(-6, 0, 0).Unix()
+	startTimeStr := c.DefaultQuery("startTime", strconv.FormatInt(startTs, 10))
+	endTimeStr := c.DefaultQuery("endTime", strconv.FormatInt(endTs, 10))
 	currentStr := c.DefaultQuery("current", "1")
 	sizeStr := c.DefaultQuery("size", "10")
 
@@ -150,6 +154,11 @@ func GetTxRecords(c *gin.Context) {
 	if err != nil {
 		log.Printf("parse size failed: %s", err.Error())
 		c.Error(NewError(http.StatusBadRequest, err.Error()))
+		return
+	}
+	if startTime > endTime {
+		msg := fmt.Sprintf("end time must greater than start time")
+		c.Error(NewError(http.StatusBadRequest, msg))
 		return
 	}
 	if size < 10 || size > 100 {
