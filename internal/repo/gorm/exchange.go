@@ -14,19 +14,32 @@ import (
 const spotUrl = "https://exchange.com/api"
 const featuresUrl = "https://exhcange.com/api"
 
+func makeAPIRequest(client *http.Client, apiKey, apiSecret, apiURL string) (*http.Response, error) {
+	apiURL += fmt.Sprintf("?api_key=%s&api_secret=%s", apiKey, apiSecret)
+	// Create an HTTP request with the appropriate headers, body, etc.
+	req, err := http.NewRequest(http.MethodGet, apiURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make the HTTP request using the client with rate limiting.
+	return client.Do(req)
+}
+
 func (repo *repository) GetSpotExchangeInfo() (exchangeInfo entity.ExchangeInfo, err error) {
 	var reader io.Reader
 	var response *http.Response
 	baseUrl := spotUrl + "/exchangeInfo"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
-		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
-		response, err = http.Get(baseUrl)
+		client := &http.Client{}
+		response, err = makeAPIRequest(client, repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret, baseUrl)
 		if err != nil {
 			return exchangeInfo, err
 		}
 	}
 
 	if response != nil {
+		defer response.Body.Close()
 		reader = response.Body
 	} else {
 		reader, err = os.Open("test/spot_exchange_info.json")
@@ -54,14 +67,15 @@ func (repo *repository) GetFuturesExchangeInfo() (exchangeInfo entity.ExchangeIn
 	var response *http.Response
 	baseUrl := spotUrl + "/exchangeInfo"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
-		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
-		response, err = http.Get(baseUrl)
+		client := &http.Client{}
+		response, err = makeAPIRequest(client, repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret, baseUrl)
 		if err != nil {
 			return exchangeInfo, err
 		}
 	}
 
 	if response != nil {
+		defer response.Body.Close()
 		reader = response.Body
 	} else {
 		reader, err = os.Open("test/spot_exchange_info.json")
@@ -90,14 +104,15 @@ func (repo *repository) GetSpotBalance() (balance entity.Balance, err error) {
 	var response *http.Response
 	baseUrl := spotUrl + "/spot/balance"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
-		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
-		response, err = http.Get(baseUrl)
+		client := &http.Client{}
+		response, err = makeAPIRequest(client, repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret, baseUrl)
 		if err != nil {
 			return balance, err
 		}
 	}
 
 	if response != nil {
+		defer response.Body.Close()
 		reader = response.Body
 	} else {
 		reader, err = os.Open("test/spot_balance.json")
@@ -126,14 +141,15 @@ func (repo *repository) GetFuturesBalance() (balance entity.Balance, err error) 
 	var response *http.Response
 	baseUrl := featuresUrl + "/futures/balance"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
-		baseUrl += fmt.Sprintf("?api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
-		response, err = http.Get(baseUrl)
+		client := &http.Client{}
+		response, err = makeAPIRequest(client, repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret, baseUrl)
 		if err != nil {
 			return balance, err
 		}
 	}
 
 	if response != nil {
+		defer response.Body.Close()
 		reader = response.Body
 	} else {
 		reader, err = os.Open("test/futures_balance.json")
@@ -166,14 +182,15 @@ func (repo *repository) GetTxRecords(args entity.GetTxRecordsArg) (txRecords ent
 		baseUrl += fmt.Sprintf("&size=%d", args.Size)
 		baseUrl += fmt.Sprintf("&startTime=%d", args.StartTime)
 		baseUrl += fmt.Sprintf("&endTime=%d", args.EndTime)
-		baseUrl += fmt.Sprintf("&api_key=%s&api_secret=%s", repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret)
-		response, err = http.Get(baseUrl)
+		client := &http.Client{}
+		response, err = makeAPIRequest(client, repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret, baseUrl)
 		if err != nil {
 			return
 		}
 	}
 
 	if response != nil {
+		defer response.Body.Close()
 		reader = response.Body
 	} else {
 		reader, err = os.Open("test/spot_transfer_records.json")
