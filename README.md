@@ -1,6 +1,6 @@
 # 2023 noneland backend interview
 
-!! 請使用 git fork 的方式回傳作業 repo
+!! 請使用 github fork 的方式回傳自己 repo 回來
 
 ## 前情提要
 
