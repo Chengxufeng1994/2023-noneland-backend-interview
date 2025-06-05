@@ -63,9 +63,9 @@ func init() {
 }
 
 type getBalanceResponse struct {
-	OK              bool   `json:"ok"`
-	SpotBalance     string `json:"spot_balance"`
-	FeaturesBalance string `json:"futures_balance"`
+	OK             bool   `json:"ok"`
+	SpotBalance    string `json:"spot_balance"`
+	FuturesBalance string `json:"futures_balance"`
 }
 
 func GetBalance(c *gin.Context) {
@@ -111,9 +111,9 @@ func GetBalance(c *gin.Context) {
 
 	c.JSON(http.StatusOK,
 		getBalanceResponse{
-			OK:              true,
-			SpotBalance:     spotBalance.Free,
-			FeaturesBalance: futuresBalance.Free,
+			OK:             true,
+			SpotBalance:    spotBalance.Free,
+			FuturesBalance: futuresBalance.Free,
 		},
 	)
 }
