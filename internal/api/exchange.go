@@ -26,7 +26,7 @@ func calculateRate(interval string, intervalNum int, limit int) float64 {
 		seconds = 60
 	}
 
-	return float64(limit / seconds / intervalNum)
+	return float64(limit) / float64(seconds) / float64(intervalNum)
 }
 
 func init() {
