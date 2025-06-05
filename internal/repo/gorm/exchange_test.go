@@ -1,8 +1,13 @@
 package gorm
 
 import (
+	"encoding/json"
+	"io"
+	"os"
+
 	"github.com/stretchr/testify/require"
 	"noneland/backend/interview/internal/entity"
+	"noneland/backend/interview/internal/repo/model"
 	"testing"
 	"time"
 )
@@ -81,4 +86,24 @@ func TestGetTxRecords(t *testing.T) {
 		require.Equal(t, answer.Rows[i].TxId, row.TxId)
 		require.Equal(t, answer.Rows[i].Type, row.Type)
 	}
+}
+
+func TestGetFuturesExchangeInfo(t *testing.T) {
+	result, err := repo.GetFuturesExchangeInfo()
+	require.NoError(t, err)
+	require.NotEmpty(t, result)
+
+	file, err := os.Open("test/futures_exchange_info.json")
+	require.NoError(t, err)
+	defer file.Close()
+
+	raw, err := io.ReadAll(file)
+	require.NoError(t, err)
+
+	var data model.ExchangeInfo
+	err = json.Unmarshal(raw, &data)
+	require.NoError(t, err)
+
+	answer := model.ExchangeInfoModelToEntity(&data)
+	require.Equal(t, *answer, result)
 }
