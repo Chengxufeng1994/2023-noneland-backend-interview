@@ -12,7 +12,7 @@ import (
 )
 
 const spotUrl = "https://exchange.com/api"
-const featuresUrl = "https://exhcange.com/api"
+const featuresUrl = "https://exchange.com/api"
 
 func makeAPIRequest(client *http.Client, apiKey, apiSecret, apiURL string) (*http.Response, error) {
 	apiURL += fmt.Sprintf("?api_key=%s&api_secret=%s", apiKey, apiSecret)
@@ -65,7 +65,7 @@ func (repo *repository) GetSpotExchangeInfo() (exchangeInfo entity.ExchangeInfo,
 func (repo *repository) GetFuturesExchangeInfo() (exchangeInfo entity.ExchangeInfo, err error) {
 	var reader io.Reader
 	var response *http.Response
-	baseUrl := spotUrl + "/exchangeInfo"
+	baseUrl := featuresUrl + "/exchangeInfo"
 	if repo.config.XXExchange.ApiKey != "" && repo.config.XXExchange.ApiSecret != "" {
 		client := &http.Client{}
 		response, err = makeAPIRequest(client, repo.config.XXExchange.ApiKey, repo.config.XXExchange.ApiSecret, baseUrl)
@@ -78,7 +78,7 @@ func (repo *repository) GetFuturesExchangeInfo() (exchangeInfo entity.ExchangeIn
 		defer response.Body.Close()
 		reader = response.Body
 	} else {
-		reader, err = os.Open("test/spot_exchange_info.json")
+		reader, err = os.Open("test/futures_exchange_info.json")
 		if err != nil {
 			return exchangeInfo, err
 		}

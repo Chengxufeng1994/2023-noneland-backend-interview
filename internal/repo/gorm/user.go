@@ -9,7 +9,7 @@ func (repo *repository) GetUsers() (users []entity.User, err error) {
 	datas := []*model.User{}
 	err = repo.db.Model(&model.User{}).Find(&datas).Error
 	if err != nil {
-		return nil, err
+		return users, err
 	}
 
 	users = make([]entity.User, len(datas))
@@ -20,5 +20,5 @@ func (repo *repository) GetUsers() (users []entity.User, err error) {
 		}
 	}
 
-	return nil, err
+	return users, err
 }
